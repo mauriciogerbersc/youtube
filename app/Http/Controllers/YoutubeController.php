@@ -36,10 +36,15 @@ class YoutubeController extends Controller
         }
     }
 
+    public function remover_acento($string)
+    {
+        return preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $string);
+    }
+    
     public function buscar(Request $request, YouTubeService $youTubeService)
     {
 
-        $dadosArray['q'] = $request->input('q');
+        $dadosArray['q'] = $this->remover_acento($request->input('q'));
 
         $search = $youTubeService->processaTransacao($dadosArray, 'search');
 
@@ -49,7 +54,7 @@ class YoutubeController extends Controller
         $retorno = json_decode($search['retorno'], true);
 
         foreach ($retorno['items'] as $key => $val) {
-         
+
             $dadosArray['videoId'] = $val['id']['videoId'];
             $detailStats[] = $youTubeService->processaTransacao($dadosArray, 'info');
             foreach ($detailStats as $k => $v) {
@@ -57,12 +62,12 @@ class YoutubeController extends Controller
                 $interval       = new DateInterval($detail['items'][0]['contentDetails']['duration']);
                 $formated_stamp = $interval->h * 3600 + $interval->i * 60 + $interval->s;
                 $stats[]        = array(
-                                        'title' => $val['snippet']['description'], 'thumb' => $val['snippet']['thumbnails']['high']['url'],
-                                        'duration' => $this->converterSegundosEmMinutos($formated_stamp),
-                                        'id' => $val['id']['videoId'],
-                                        'seconds' => $formated_stamp,
-                                        'button' => '<a href="/watch/'.$val['id']['videoId'].'/'.$formated_stamp.'" class="btn btn-primary btn-sm">Assistir</a>'
-                                    );
+                    'title' => $val['snippet']['description'], 'thumb' => $val['snippet']['thumbnails']['high']['url'],
+                    'duration' => $this->converterSegundosEmMinutos($formated_stamp),
+                    'id' => $val['id']['videoId'],
+                    'seconds' => $formated_stamp,
+                    'button' => '<a href="/watch/' . $val['id']['videoId'] . '/' . $formated_stamp . '" class="btn btn-primary btn-sm">Assistir</a>'
+                );
             }
         }
 
@@ -92,7 +97,7 @@ class YoutubeController extends Controller
     {
         // Recupero tempo semanal, setado na busca.
         $tempoSemanal = $request->session()->get('tempoSemana');
-    
+
         // Verifico se ainda tem saldo para assistir algo
         $permiteAssistir = $this->calculoSemanal($tempoSemanal, $segundosAssistidos);
 
@@ -100,7 +105,7 @@ class YoutubeController extends Controller
         $tamanhOVideo = $this->converterSegundosEmMinutos($segundosAssistidos);
         if (!$permiteAssistir) {
             $mensagem = "Sem saldo semanal para assistir.";
-           
+
             return view('watch', compact('mensagem', 'saldoAtual', 'tamanhOVideo'));
         }
 
@@ -109,7 +114,6 @@ class YoutubeController extends Controller
         $request->session()->put('tempoSemana', $novo_tempo);
 
         return view('watch', compact('id', 'saldoAtual', 'tamanhOVideo'));
-        
     }
 
     function calculoSemanal($tempoAtual, $tempoDescrecido)
