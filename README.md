@@ -1,3 +1,16 @@
+## PARA RODAR BASTA
+
+<p align="center">Para rodar o projeto basta baixar e renomear o <strong>.env.example</strong> para <strong>.env</strong></p>
+
+<p align="center">Após isso, entrar na pasta e digitar <strong>php artisan serve</strong></p>
+
+
+
+
+
+
+
+########################## Laravel ##########################
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
 <p align="center">
